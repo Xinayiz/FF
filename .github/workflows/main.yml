@@ -1,4 +1,4 @@
-name: Build FF APK (final)
+name: Build FF APK v1.0
 on: [push, workflow_dispatch]
 jobs:
   build:
@@ -26,14 +26,36 @@ jobs:
         run: |
           mkdir -p app/libs
           wget -q -O app/libs/libxray.aar https://github.com/2dust/AndroidLibXrayLite/releases/download/v0.5.0/libxray.aar
-          ls -la app/libs/
 
-      - uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: 8.2
+      - name: Setup Gradle Wrapper
+        run: |
+          # Скачиваем официальный gradle-wrapper.jar
+          mkdir -p gradle/wrapper
+          wget -q -O gradle/wrapper/gradle-wrapper.jar https://repo1.maven.org/maven2/org/gradle/gradle-wrapper/8.2/gradle-wrapper-8.2.jar
+          # Создаём gradlew и gradlew.bat
+          cat > gradlew << 'EOF'
+          #!/bin/sh
+          if [ -z "$JAVA_HOME" ]; then
+              JAVACMD="java"
+          else
+              JAVACMD="$JAVA_HOME/bin/java"
+          fi
+          DIRNAME=`dirname "$0"`
+          APP_HOME=`cd "$DIRNAME" && pwd`
+          CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+          exec "$JAVACMD" -cp "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+          EOF
+          chmod +x gradlew
+          cat > gradlew.bat << 'EOF'
+          @rem Gradle startup script for Windows
+          @set DIRNAME=%~dp0
+          @set APP_HOME=%DIRNAME%
+          @set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
+          @"%JAVA_HOME%\bin\java.exe" -cp "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %*
+          EOF
 
       - name: Build APK
-        run: gradle assembleDebug
+        run: ./gradlew assembleDebug
 
       - uses: actions/upload-artifact@v4
         with:
