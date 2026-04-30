@@ -23,9 +23,12 @@ jobs:
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
       - name: Download libv2ray.aar
+        env:
+            GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p app/libs
-          curl -L -o app/libs/libv2ray.aar https://github.com/2dust/AndroidLibXrayLite/releases/download/v26.4.25/libv2ray.aar
+          # Используем автоматический токен GitHub для скачивания
+          gh release download v26.4.25 -R 2dust/AndroidLibXrayLite -p "libv2ray.aar" -O app/libs/libv2ray.aar
           ls -la app/libs/
 
       - name: Setup Gradle Wrapper
