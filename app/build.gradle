@@ -54,5 +54,5 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
 
     // Xray core (локальный AAR, будет скачан в CI)
-    implementation files('libs/libxray.aar')
+    implementation files('libs/libv2ray.aar')
 }
