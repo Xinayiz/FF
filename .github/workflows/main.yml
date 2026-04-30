@@ -14,7 +14,7 @@ jobs:
       - name: Setup Android SDK
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O /tmp/cmdline-tools.zip
+          curl -L -o /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
           unzip -q /tmp/cmdline-tools.zip -d $HOME/android-sdk/cmdline-tools
           mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
@@ -22,17 +22,16 @@ jobs:
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
-      - name: Download Xray AAR
+      - name: Download libv2ray.aar
         run: |
           mkdir -p app/libs
-          wget -q -O app/libs/libxray.aar https://github.com/2dust/AndroidLibXrayLite/releases/download/v0.5.0/libxray.aar
+          curl -L -o app/libs/libv2ray.aar https://github.com/2dust/AndroidLibXrayLite/releases/download/v26.4.25/libv2ray.aar
+          ls -la app/libs/
 
       - name: Setup Gradle Wrapper
         run: |
-          # Скачиваем официальный gradle-wrapper.jar
           mkdir -p gradle/wrapper
-          wget -q -O gradle/wrapper/gradle-wrapper.jar https://repo1.maven.org/maven2/org/gradle/gradle-wrapper/8.2/gradle-wrapper-8.2.jar
-          # Создаём gradlew и gradlew.bat
+          curl -L -o gradle/wrapper/gradle-wrapper.jar https://repo1.maven.org/maven2/org/gradle/gradle-wrapper/8.2/gradle-wrapper-8.2.jar
           cat > gradlew << 'EOF'
           #!/bin/sh
           if [ -z "$JAVA_HOME" ]; then
@@ -46,13 +45,6 @@ jobs:
           exec "$JAVACMD" -cp "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
           EOF
           chmod +x gradlew
-          cat > gradlew.bat << 'EOF'
-          @rem Gradle startup script for Windows
-          @set DIRNAME=%~dp0
-          @set APP_HOME=%DIRNAME%
-          @set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
-          @"%JAVA_HOME%\bin\java.exe" -cp "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %*
-          EOF
 
       - name: Build APK
         run: ./gradlew assembleDebug
