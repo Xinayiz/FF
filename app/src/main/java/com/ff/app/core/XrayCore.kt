@@ -2,7 +2,7 @@ package com.ff.app.core
 
 import android.content.Context
 import android.content.Intent
-import libv2ray.Libv2ray
+import com.v2ray.xray.Libv2ray
 
 class XrayCore(private val context: Context) : VpnCore() {
     private var started = false
