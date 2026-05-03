@@ -1,4 +1,4 @@
-name: Build FF APK v1.0
+name: Build FF APK
 on: [push, workflow_dispatch]
 jobs:
   build:
@@ -22,31 +22,20 @@ jobs:
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
-      - name: Download libv2ray.aar
-        env:
-            GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p app/libs
-          # Используем автоматический токен GitHub для скачивания
-          gh release download v26.4.25 -R 2dust/AndroidLibXrayLite -p "libv2ray.aar" -O app/libs/libv2ray.aar
-          ls -la app/libs/
-
       - name: Setup Gradle Wrapper
         run: |
           mkdir -p gradle/wrapper
-          curl -L -o gradle/wrapper/gradle-wrapper.jar https://repo1.maven.org/maven2/org/gradle/gradle-wrapper/8.2/gradle-wrapper-8.2.jar
-          cat > gradlew << 'EOF'
-          #!/bin/sh
-          if [ -z "$JAVA_HOME" ]; then
-              JAVACMD="java"
-          else
-              JAVACMD="$JAVA_HOME/bin/java"
-          fi
-          DIRNAME=`dirname "$0"`
-          APP_HOME=`cd "$DIRNAME" && pwd`
-          CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
-          exec "$JAVACMD" -cp "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
-          EOF
+          curl -L -o gradle/wrapper/gradle-wrapper.jar https://repo1.maven.org/maven2/org/gradle/gradle-wrapper/8.2.1/gradle-wrapper-8.2.1.jar
+          echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
+          echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+          echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2.1-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
+          echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
+          echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+          echo '#!/bin/sh' > gradlew
+          echo 'DIRNAME=`dirname "$0"`' >> gradlew
+          echo 'APP_HOME=`cd "$DIRNAME" && pwd`' >> gradlew
+          echo 'CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar' >> gradlew
+          echo 'exec java -cp "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"' >> gradlew
           chmod +x gradlew
 
       - name: Build APK
